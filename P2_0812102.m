@@ -1,12 +1,12 @@
 function poly_out = P2_0812102(op, poly1, poly2)
-
     % check op is valid
     valid_strings = ["add", "subtract", "multiply", "plot", "eval"];
+    op = convertCharsToStrings(op);
     valid_string = validatestring(op, valid_strings);
     
 %     disp(isempty(find(ismember(poly1(:,:),[2 1], 'rows'), 1)));
     switch valid_string
-        case 'add'
+        case "add"
             % check if degree is numeric, nonnegative and in decreasing order
             % check coeffcient is numeric
             validateattributes(poly1(:, 1), {'numeric'}, {'nonnegative','decreasing'});
@@ -26,7 +26,7 @@ function poly_out = P2_0812102(op, poly1, poly2)
                 error('Coeffcient must be nonzero');
             end
             poly_out = poly_add(poly1, poly2);
-        case 'subtract'
+        case "subtract"
             % check if degree is numeric, nonnegative and in decreasing order
             % check coeffcient is numeric
             validateattributes(poly1(:, 1), {'numeric'}, {'nonnegative','decreasing'});
@@ -47,7 +47,7 @@ function poly_out = P2_0812102(op, poly1, poly2)
             end
             
             poly_out = poly_subtract(poly1, poly2);
-        case 'multiply'
+        case "multiply"
             % check if degree is numeric, nonnegative and in decreasing order
             % check coeffcient is numeric
             validateattributes(poly1(:, 1), {'numeric'}, {'nonnegative','decreasing'});
@@ -68,7 +68,7 @@ function poly_out = P2_0812102(op, poly1, poly2)
             end
             
             poly_out = poly_mul(poly1, poly2);
-        case 'eval'
+        case "eval"
             % check if degree is numeric, nonnegative and in decreasing order
             % check coeffcient is numeric
             validateattributes(poly1(:, 1), {'numeric'}, {'nonnegative','decreasing'});
@@ -83,7 +83,7 @@ function poly_out = P2_0812102(op, poly1, poly2)
             end
             
             poly_out = poly_eval(poly1, poly2);
-        case 'plot'
+        case "plot"
             validateattributes(poly1(:, 1), {'numeric'}, {'nonnegative','decreasing'});
             validateattributes(poly1(:, 2), {'numeric'}, {});
             validateattributes(poly2(:), {'numeric'}, {'nonempty'});
@@ -93,75 +93,89 @@ function poly_out = P2_0812102(op, poly1, poly2)
                 error('Coeffcient must be nonzero');
             elseif numel(poly1(:,1)) == 1 && ~isequal(poly1(1,:), [0 0])
                 error('Coeffcient must be nonzero');
-            end
-            
+            end            
             poly_out = poly_plot(poly1, poly2);
+        otherwise
+            error('Unknown op');
     end
 
 end
 
 function add_res = poly_add(poly1, poly2)
     % initaialize an vector to store result
-    res = [];    
-    
+    res = [-1 -1];    
+    add_res = [];
+    found = false;
     while(true)        
         if(isempty(poly1) || isempty(poly2))
             break;
         end
-        
         % check if the degree are equal
-        if poly1(1,1) == poly2(1,1) 
-            % do operation and remove both element from vector
-            % add to result
-            if poly1(1,2) + poly2(1,2) ~= 0
-                res = [res; poly1(1,1) poly1(1,2) + poly2(1,2)];
+        for i = 1 : numel(poly2(:,1))
+            if poly1(1, 1) == poly2(i, 1)
+                found = true; 
+                % if the result not equal 0, add to res 
+                if poly1(1,2) + poly2(i, 2) ~= 0
+                    res = [res; poly1(1,1) poly1(1,2) + poly2(i,2)];
+                end
+                poly1 = [poly1(1:0,:);poly1(2:end,:)];
+                poly2 = [poly2(1:i - 1,:);poly2(i + 1:end,:)];
+                break;
             end
-            poly1 = [poly1(1:0,:);poly1(2:end,:)];
-            poly2 = [poly2(1:0,:);poly2(2:end,:)];
-        else
-            % remove the element from vector
-            % add to result
-            if poly1(1,2) ~= 0
-                res = [res; poly1(1,1) poly1(1,2)];
-            end
-            poly1 = [poly1(1:0,:);poly1(2:end,:)];
         end
+        
+        % if no same degree term found, pop from poly1
+        if ~found
+            res = [res; poly1(1,1) poly1(1,2)];
+            poly1 = [poly1(1:0,:);poly1(2:end,:)];
+        else 
+            found = false;
+        end        
     end
     % push the remain terms to res
     res = [res; poly1; poly2];
-    % check if res isempty
-    if isempty(res)
-        res = [0 0];
+    
+    for i = 1 : numel(res(:, 1))
+        if res(i, 2) ~= 0 && res(i, 1) ~= -1
+            add_res = [add_res;res(i, 1) res(i, 2)];
+        end
     end
-    res = sortrows(res,'descend');
-    add_res = res;
+    % check if res isempty
+    if isempty(add_res)
+        add_res = [0 0];
+    end
+    add_res = sortrows(add_res,'descend');
 end
 
 function sub_res = poly_subtract(poly1, poly2)
     % initaialize an vector to store result
     res = [];     
+    found = false;
     while(true)        
         if(isempty(poly1) || isempty(poly2))
             break;
         end
-        
         % check if the degree are equal
-        if poly1(1,1) == poly2(1,1) 
-            % do operation and remove both element from vector
-            % add to result
-            if poly1(1,2) - poly2(1,2) ~= 0
-                res = [res; poly1(1,1) poly1(1,2) - poly2(1,2)];
+        for i = 1 : numel(poly2(:,1))
+            if poly1(1, 1) == poly2(i, 1)
+                found = true; 
+                % if the result not equal 0, add to res 
+                if poly1(1,2) - poly2(i, 2) ~= 0
+                    res = [res; poly1(1,1) poly1(1,2) - poly2(i,2)];
+                end
+                poly1 = [poly1(1:0,:);poly1(2:end,:)];
+                poly2 = [poly2(1:i - 1,:);poly2(i + 1:end,:)];
+                break;
             end
-            poly1 = [poly1(1:0,:);poly1(2:end,:)];
-            poly2 = [poly2(1:0,:);poly2(2:end,:)];
-        else
-            % remove the element from vector
-            % add to result
-            if poly1(1,2) ~= 0
-                res = [res; poly1(1,1) poly1(1,2)];
-            end
-            poly1 = [poly1(1:0,:);poly1(2:end,:)];
         end
+        
+        % if no same degree term found, pop from poly1
+        if ~found
+            res = [res; poly1(1,1) poly1(1,2)];
+            poly1 = [poly1(1:0,:);poly1(2:end,:)];
+        else 
+            found = false;
+        end        
     end
     % push the remain terms to res
     res = [res; poly1; poly2];
@@ -212,6 +226,8 @@ function mul_res = poly_mul(poly1, poly2)
     res = sortrows(res,'descend');
     mul_res = res;
 end
+
+
 
 function eva_res = poly_eval(poly1, x)
     x = sort(x);
