@@ -2,18 +2,18 @@ function poly_out = P2_0812102(op, poly1, poly2)
     valid_strings = ["add", "subtract", "multiply", "plot", "eval"];
     valid_string = validatestring(op, valid_strings);
     
-%     fprintf("%g\n",poly1(1,1) == poly2(:,1));
-%     fprintf("%d\n", size(poly1, 1));
+%     disp(class(poly1(:,1)));
     switch valid_string
-        case "add"
+        case 'add'
+            validateattributes(poly1(:, 1), {'numeric'}, {'nonnegative','decreasing'});
             poly_out = poly_add(poly1, poly2);
-        case "subtract"
+        case 'subtract'
             poly_out = poly_subtract(poly1, poly2);
-        case "multiply"
+        case 'multiply'
             poly_out = poly_mul(poly1, poly2);
-        case "eval"
+        case 'eval'
             poly_out = poly_eval(poly1, poly2);
-        case "plot"
+        case 'plot'
             poly_out = poly_plot(poly1, poly2);
     end
 
