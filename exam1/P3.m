@@ -8,10 +8,10 @@ function ans3 = P3(vx, vy, vz)
     disp(tt);
     px = vx .* tt;
     py = vy .* tt;
-    pz = vy .* tt - 0.5 * g .* power(tt, 2);
+    pz = vz .* tt - 0.5 * g .* power(tt, 2);
     hold on
-    ans3 = plot(tt, px);
-    plot(tt, py);
-    plot(tt, pz);
+    view(45, 45);
+    ans3 = plot3(px, py, pz);
+    plot3(px, py, zeros(1,100));
     hold off
 end
