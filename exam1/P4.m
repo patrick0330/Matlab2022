@@ -50,7 +50,5 @@ function l = lcm_compute(v)
     l = prod(mul) * prod(v);
 end
 
-vt - 1/2 g * t ^ 2
-
 
 
