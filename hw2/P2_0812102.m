@@ -148,44 +148,8 @@ function add_res = poly_add(poly1, poly2)
 end
 
 function sub_res = poly_subtract(poly1, poly2)
-    % initaialize an vector to store result
-    res = [];     
-    found = false;
-    while(true)        
-        if(isempty(poly1) || isempty(poly2))
-            break;
-        end
-        % check if the degree are equal
-        for i = 1 : numel(poly2(:,1))
-            if poly1(1, 1) == poly2(i, 1)
-                found = true; 
-                % if the result not equal 0, add to res 
-                if poly1(1,2) - poly2(i, 2) ~= 0
-                    res = [res; poly1(1,1) poly1(1,2) - poly2(i,2)];
-                end
-                poly1 = [poly1(1:0,:);poly1(2:end,:)];
-                poly2 = [poly2(1:i - 1,:);poly2(i + 1:end,:)];
-                break;
-            end
-        end
-        
-        % if no same degree term found, pop from poly1
-        if ~found
-            res = [res; poly1(1,1) poly1(1,2)];
-            poly1 = [poly1(1:0,:);poly1(2:end,:)];
-        else 
-            found = false;
-        end        
-    end
-    % push the remain terms to res
-    res = [res; poly1; poly2];
-    
-    % check if res is empty
-    if isempty(res)
-        res = [0 0];
-    end
-    res = sortrows(res,'descend');
-    sub_res = res;
+   poly2(:, 2) = poly2(:, 2) .* -1;
+   sub_res = poly_add(poly1, poly2);
 end
 
 function mul_res = poly_mul(poly1, poly2)
